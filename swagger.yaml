@@ -77,6 +77,12 @@ paths:
                                 type: array
                                 items:
                                     $ref: '#/components/schemas/Product'
+                '400':
+                    description: Search query must be provided as a single string.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /login:
         post:
             tags:

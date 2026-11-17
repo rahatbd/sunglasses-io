@@ -21,4 +21,20 @@ app.get('/api/brands/:id/products', (request, response) => {
     response.status(200).json(brandProducts);
 });
 
+app.get('/api/products', (request, response) => {
+    const query = request.query.q;
+    if (query !== undefined && typeof query !== 'string') return response.status(400).json({error: 'Search query must be a single string.'});
+    const search = query?.trim().toLowerCase();
+    if (!search) return response.status(200).json(products);
+    const searchProducts = products.filter(product => {
+        const brand = brands.find(item => item.id === product.categoryId);
+        return (
+            product.name.toLowerCase().includes(search) ||
+            product.description.toLowerCase().includes(search) ||
+            brand?.name.toLowerCase().includes(search)
+        );
+    });
+    response.status(200).json(searchProducts);
+});
+
 export default app;

@@ -1,26 +1,13 @@
 import {describe, before, after, test} from 'node:test';
-import {ok, equal, deepEqual} from 'node:assert/strict';
-import {once} from 'node:events';
-import {promisify} from 'node:util';
+import {equal, deepEqual} from 'node:assert/strict';
+import {startServer, closeServer, fetchData} from './helpers.js';
 import {brands, products} from '../app/data.js';
 import app from '../app/app.js';
 
 describe('Brands API', () => {
-    let baseUrl, server;
-
     before(async () => {
-        server = app.listen(0, '127.0.0.1');
-        await once(server, 'listening');
-        const {port} = server.address();
-        baseUrl = `http://127.0.0.1:${port}`;
+        await startServer(app);
     });
-
-    async function fetchData(path) {
-        const response = await fetch(`${baseUrl}/api/${path}`);
-        ok(response.headers.get('content-type')?.includes('application/json'));
-        const result = await response.json();
-        return {response, result};
-    }
 
     test('GET /api/brands should return all brands', async () => {
         const {response, result} = await fetchData('brands');
@@ -43,7 +30,6 @@ describe('Brands API', () => {
     });
 
     after(async () => {
-        if (!server?.listening) return;
-        await promisify(server.close.bind(server))();
+        await closeServer();
     });
 });
